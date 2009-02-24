@@ -1,0 +1,15 @@
+--- HBAAPILIB.c	2009-02-24 11:19:05.000000000 -0800
++++ HBAAPILIB.c	2009-02-24 11:19:17.000000000 -0800
+@@ -37,8 +37,12 @@
+  */
+ #define HBAAPI_EXPORTS
+ #else
++#include <stddef.h>
+ #include <dlfcn.h>
++#include <stdlib.h>
+ #include <strings.h>
++#include <string.h>
++#define __USE_XOPEN
+ #endif
+ #include <stdio.h>
+ #include <time.h>
