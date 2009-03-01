@@ -4,7 +4,7 @@ Release:        1%{?dist}
 Summary:        SNIA HBAAPI library
 
 Group:          System Environment/Libraries
-License:        SNIA Public License Version 1.0
+License:        SNIA
 URL:            http://www.sourceforge.net/projects/hbaapi
 Source0:        hbaapi_src_2.2.tgz
 Source1:        hbaapi_build_2.2.tar.gz
