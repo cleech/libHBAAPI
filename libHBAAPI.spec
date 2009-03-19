@@ -8,8 +8,6 @@ License:        SNIA
 URL:            http://www.sourceforge.net/projects/hbaapi
 Source0:        hbaapi_src_2.2.tgz
 Source1:        hbaapi_build_2.2.tar.gz
-Patch0:         hbaapi2.2.patch
-Patch1:         hbaapi-conf.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # BuildRequires:  
@@ -31,8 +29,6 @@ developing applications that use %{name}.
 %prep
 %setup -q -n hbaapi_src_2.2
 %setup -q -T -D -a 1 -n hbaapi_src_2.2
-%patch -P 0
-%patch -P 1
 
 
 %build
