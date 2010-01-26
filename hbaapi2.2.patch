@@ -1,5 +1,5 @@
---- HBAAPILIB.c	2009-02-24 11:19:05.000000000 -0800
-+++ HBAAPILIB.c	2009-02-24 11:19:17.000000000 -0800
+--- HBAAPILIB.c	2010-01-21 16:46:34.000000000 -0800
++++ HBAAPILIB.c	2010-01-21 16:51:13.000000000 -0800
 @@ -37,8 +37,12 @@
   */
  #define HBAAPI_EXPORTS
@@ -13,3 +13,21 @@
  #endif
  #include <stdio.h>
  #include <time.h>
+@@ -859,8 +863,15 @@
+     InitializeCriticalSection(&_hbaapi_LE_mutex);
+ #endif
+ 
+-
+-    return HBA_STATUS_OK;
++    /* At least one lib must be loaded */
++    status = HBA_STATUS_ERROR;
++    for(lib_infop = _hbaapi_librarylist; lib_infop != NULL; lib_infop = lib_infop->next) {
++        if (lib_infop->status == HBA_LIBRARY_LOADED) {
++            status = HBA_STATUS_OK;
++            break;
++        }
++    }
++    return status;
+ }
+ 
+ HBA_STATUS
