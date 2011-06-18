@@ -1,5 +1,5 @@
---- HBAAPILIB.c	2010-01-21 16:46:34.000000000 -0800
-+++ HBAAPILIB.c	2010-01-21 17:20:26.000000000 -0800
+--- HBAAPILIB.c	2011-05-05 11:45:12.273549527 -0700
++++ HBAAPILIB.c	2011-05-05 11:45:43.146549532 -0700
 @@ -37,8 +37,12 @@
   */
  #define HBAAPI_EXPORTS
@@ -49,7 +49,17 @@
  #ifdef WIN32
  BOOL APIENTRY
  DllMain( HANDLE hModule,
-@@ -859,8 +864,15 @@
+@@ -820,6 +825,9 @@
+	/* successfully loaded library */
+	lib_infop->status = HBA_LIBRARY_LOADED;
+     }
++
++    fclose(hbaconf);
++
+ #endif /* WIN32 or UNIX */
+ #ifdef POSIX_THREADS
+     ret = pthread_mutex_init(&_hbaapi_LL_mutex, NULL);
+@@ -859,8 +867,15 @@
      InitializeCriticalSection(&_hbaapi_LE_mutex);
  #endif
  
@@ -67,7 +77,7 @@
  }
  
  HBA_STATUS
-@@ -1048,7 +1060,7 @@
+@@ -1048,7 +1063,7 @@
  	    if(adapt_infop == NULL) {
  #ifndef WIN32
  		fprintf(stderr,
@@ -76,7 +86,7 @@
  			sizeof(HBA_ADAPTER_INFO));
  #endif
  		RELEASE_MUTEX(&_hbaapi_AL_mutex);
-@@ -1359,7 +1371,7 @@
+@@ -1359,7 +1374,7 @@
      if(cbp == NULL) {
  #ifndef WIN32
  	fprintf(stderr,
@@ -85,7 +95,7 @@
  		sizeof(HBA_ALLADAPTERSCALLBACK_ELEM));
  #endif
  	return HBA_STATUS_ERROR;
-@@ -1399,7 +1411,7 @@
+@@ -1399,7 +1414,7 @@
  #ifndef WIN32
  	    fprintf(stderr,
  		    "HBA_RegisterForAdapterAddEvents: "
@@ -94,7 +104,7 @@
  		    sizeof(HBA_VENDORCALLBACK_ELEM));
  #endif
  	    freevendorhandlelist(vendorhandlelist);
-@@ -1535,7 +1547,7 @@
+@@ -1535,7 +1550,7 @@
      if(acbp == NULL) {
  #ifndef WIN32
  	fprintf(stderr,
@@ -103,7 +113,7 @@
  		sizeof(HBA_ADAPTERCALLBACK_ELEM));
  #endif
  	RELEASE_MUTEX_RETURN(&_hbaapi_LL_mutex, HBA_STATUS_ERROR);
-@@ -1627,7 +1639,7 @@
+@@ -1627,7 +1642,7 @@
  #ifndef WIN32
  	fprintf(stderr,
  		"HBA_RegisterForAdapterPortEvents: "
@@ -112,7 +122,7 @@
  		sizeof(HBA_ADAPTERCALLBACK_ELEM));
  #endif
  	RELEASE_MUTEX_RETURN(&_hbaapi_LL_mutex, HBA_STATUS_ERROR);
-@@ -1720,7 +1732,7 @@
+@@ -1720,7 +1735,7 @@
  #ifndef WIN32
  	fprintf(stderr,
  		"HBA_RegisterForAdapterPortStatEvents: "
@@ -121,7 +131,7 @@
  		sizeof(HBA_ADAPTERCALLBACK_ELEM));
  #endif
  	RELEASE_MUTEX_RETURN(&_hbaapi_LL_mutex, HBA_STATUS_ERROR);
-@@ -1817,7 +1829,7 @@
+@@ -1817,7 +1832,7 @@
      if(acbp == NULL) {
  #ifndef WIN32
  	fprintf(stderr,
@@ -130,7 +140,7 @@
  		sizeof(HBA_ADAPTERCALLBACK_ELEM));
  #endif
  	RELEASE_MUTEX_RETURN(&_hbaapi_LL_mutex, HBA_STATUS_ERROR);
-@@ -1912,7 +1924,7 @@
+@@ -1912,7 +1927,7 @@
      if(acbp == NULL) {
  #ifndef WIN32
  	fprintf(stderr,
