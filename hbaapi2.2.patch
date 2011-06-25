@@ -149,3 +149,11 @@
  		sizeof(HBA_ADAPTERCALLBACK_ELEM));
  #endif
  	RELEASE_MUTEX_RETURN(&_hbaapi_LL_mutex, HBA_STATUS_ERROR);
+--- ./hbaapi.h	2011-05-19 10:34:37.429915878 -0700
++++ ./hbaapi.h	2011-05-19 10:36:47.658915907 -0700
+@@ -234,7 +234,7 @@
+ #define HBA_PORTSPEED_1GBIT		1   /* 1 GBit/sec */
+ #define HBA_PORTSPEED_2GBIT		2   /* 2 GBit/sec */
+ #define HBA_PORTSPEED_10GBIT		4   /* 10 GBit/sec */
+-#define HBA_PORTSPEED_NOT_NEGOTIATED	5   /* Speed not established */
++#define HBA_PORTSPEED_NOT_NEGOTIATED	(1 << 15) /* Speed not established */
