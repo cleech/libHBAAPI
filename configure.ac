@@ -1,4 +1,4 @@
-AC_INIT([libHBAAPI], [2.2])
+AC_INIT([libHBAAPI], [2.2.4])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 AC_PROG_CC
