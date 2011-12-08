@@ -1,5 +1,5 @@
---- HBAAPILIB.c	2011-05-05 11:45:12.273549527 -0700
-+++ HBAAPILIB.c	2011-05-05 11:45:43.146549532 -0700
+--- HBAAPILIB.c	2011-11-22 10:56:03.767593438 -0800
++++ HBAAPILIB.c	2011-11-22 11:13:05.468590890 -0800
 @@ -37,8 +37,12 @@
   */
  #define HBAAPI_EXPORTS
@@ -49,9 +49,48 @@
  #ifdef WIN32
  BOOL APIENTRY
  DllMain( HANDLE hModule,
-@@ -820,6 +825,9 @@
-	/* successfully loaded library */
-	lib_infop->status = HBA_LIBRARY_LOADED;
+@@ -665,6 +670,7 @@
+     char		hbaConfFilePath[256];
+     char		*charPtr;
+     HBA_LIBRARY_INFO	*lib_infop;
++    int			duplicate = 0;
+ 
+     if(_hbaapi_librarylist != NULL) {
+ 	fprintf(stderr,
+@@ -715,6 +721,30 @@
+ 	    (strlen(librarypath) == 0)) {
+ 	    continue;
+ 	}
++
++	/* Skip over duplicate library entries */
++	duplicate = 0;
++	for(lib_infop = _hbaapi_librarylist;
++	    lib_infop != NULL;
++	    lib_infop = lib_infop->next) {
++		if (strcmp(lib_infop->LibraryName, libraryname) == 0) {
++			fprintf(stderr, "Skipping duplicate entry for Library "
++				"name (%s) in %s\n",
++				libraryname, hbaConfFilePath);
++			duplicate = 1;
++			break;
++		} else if (strcmp(lib_infop->LibraryPath, librarypath) == 0) {
++			fprintf(stderr, "Skipping duplicate entry for Library "
++				"path (%s) in %s\n",
++				librarypath, hbaConfFilePath);
++			duplicate = 1;
++			break;
++		}
++	}
++	/* Duplicate found move to next */
++	if (duplicate)
++		continue;
++
+ 	/* 
+ 	 * Special case....
+ 	 * Look for loglevel
+@@ -820,6 +850,9 @@
+ 	/* successfully loaded library */
+ 	lib_infop->status = HBA_LIBRARY_LOADED;
      }
 +
 +    fclose(hbaconf);
@@ -59,7 +98,7 @@
  #endif /* WIN32 or UNIX */
  #ifdef POSIX_THREADS
      ret = pthread_mutex_init(&_hbaapi_LL_mutex, NULL);
-@@ -859,8 +867,15 @@
+@@ -859,8 +892,15 @@
      InitializeCriticalSection(&_hbaapi_LE_mutex);
  #endif
  
@@ -77,7 +116,7 @@
  }
  
  HBA_STATUS
-@@ -1048,7 +1063,7 @@
+@@ -1048,7 +1088,7 @@
  	    if(adapt_infop == NULL) {
  #ifndef WIN32
  		fprintf(stderr,
@@ -86,7 +125,7 @@
  			sizeof(HBA_ADAPTER_INFO));
  #endif
  		RELEASE_MUTEX(&_hbaapi_AL_mutex);
-@@ -1359,7 +1374,7 @@
+@@ -1359,7 +1399,7 @@
      if(cbp == NULL) {
  #ifndef WIN32
  	fprintf(stderr,
@@ -95,7 +134,7 @@
  		sizeof(HBA_ALLADAPTERSCALLBACK_ELEM));
  #endif
  	return HBA_STATUS_ERROR;
-@@ -1399,7 +1414,7 @@
+@@ -1399,7 +1439,7 @@
  #ifndef WIN32
  	    fprintf(stderr,
  		    "HBA_RegisterForAdapterAddEvents: "
@@ -104,7 +143,7 @@
  		    sizeof(HBA_VENDORCALLBACK_ELEM));
  #endif
  	    freevendorhandlelist(vendorhandlelist);
-@@ -1535,7 +1550,7 @@
+@@ -1535,7 +1575,7 @@
      if(acbp == NULL) {
  #ifndef WIN32
  	fprintf(stderr,
@@ -113,7 +152,7 @@
  		sizeof(HBA_ADAPTERCALLBACK_ELEM));
  #endif
  	RELEASE_MUTEX_RETURN(&_hbaapi_LL_mutex, HBA_STATUS_ERROR);
-@@ -1627,7 +1642,7 @@
+@@ -1627,7 +1667,7 @@
  #ifndef WIN32
  	fprintf(stderr,
  		"HBA_RegisterForAdapterPortEvents: "
@@ -122,7 +161,7 @@
  		sizeof(HBA_ADAPTERCALLBACK_ELEM));
  #endif
  	RELEASE_MUTEX_RETURN(&_hbaapi_LL_mutex, HBA_STATUS_ERROR);
-@@ -1720,7 +1735,7 @@
+@@ -1720,7 +1760,7 @@
  #ifndef WIN32
  	fprintf(stderr,
  		"HBA_RegisterForAdapterPortStatEvents: "
@@ -131,7 +170,7 @@
  		sizeof(HBA_ADAPTERCALLBACK_ELEM));
  #endif
  	RELEASE_MUTEX_RETURN(&_hbaapi_LL_mutex, HBA_STATUS_ERROR);
-@@ -1817,7 +1832,7 @@
+@@ -1817,7 +1857,7 @@
      if(acbp == NULL) {
  #ifndef WIN32
  	fprintf(stderr,
@@ -140,7 +179,7 @@
  		sizeof(HBA_ADAPTERCALLBACK_ELEM));
  #endif
  	RELEASE_MUTEX_RETURN(&_hbaapi_LL_mutex, HBA_STATUS_ERROR);
-@@ -1912,7 +1927,7 @@
+@@ -1912,7 +1952,7 @@
      if(acbp == NULL) {
  #ifndef WIN32
  	fprintf(stderr,
