@@ -234,7 +234,7 @@ typedef HBA_UINT32 HBA_PORTSPEED;
 #define HBA_PORTSPEED_1GBIT		1   /* 1 GBit/sec */
 #define HBA_PORTSPEED_2GBIT		2   /* 2 GBit/sec */
 #define HBA_PORTSPEED_10GBIT		4   /* 10 GBit/sec */
-#define HBA_PORTSPEED_NOT_NEGOTIATED	5   /* Speed not established */
+#define HBA_PORTSPEED_NOT_NEGOTIATED	(1 << 15) /* Speed not established */
 
 
 

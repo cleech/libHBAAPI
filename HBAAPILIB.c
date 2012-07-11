@@ -37,8 +37,12 @@
  */
 #define HBAAPI_EXPORTS
 #else
+#include <stddef.h>
 #include <dlfcn.h>
+#include <stdlib.h>
 #include <strings.h>
+#include <string.h>
+#define __USE_XOPEN
 #endif
 #include <stdio.h>
 #include <time.h>
@@ -381,7 +385,7 @@ local_remove_callback(HBA_CALLBACKHANDLE cbhandle) {
     HBA_ALLADAPTERSCALLBACK_ELEM	**lap;
     HBA_ALLADAPTERSCALLBACK_ELEM	*allcbp;
     HBA_ADAPTERCALLBACK_ELEM		*cbp;
-    HBARemoveCallbackFunc		registeredfunc;
+    HBARemoveCallbackFunc		registeredfunc = NULL;
     HBA_VENDORCALLBACK_ELEM		*vhlp;
     HBA_VENDORCALLBACK_ELEM		*vnext;
     int					found;
@@ -395,7 +399,7 @@ local_remove_callback(HBA_CALLBACKHANDLE cbhandle) {
     GRAB_MUTEX(&_hbaapi_APSE_mutex);
     GRAB_MUTEX(&_hbaapi_TE_mutex);
     GRAB_MUTEX(&_hbaapi_LE_mutex);
-    for(listp = cb_lists_array, found = 0; found == 0, *listp != NULL; listp++) {
+    for(listp = cb_lists_array, found = 0; *listp != NULL; listp++) {
 	lastp = *listp;
 	for(cbp=**listp; cbp != NULL; cbp = cbp->next) {
 	    if(cbhandle != (HBA_CALLBACKHANDLE)cbp) {
@@ -455,6 +459,7 @@ local_remove_callback(HBA_CALLBACKHANDLE cbhandle) {
     return(status);
 }
 
+#if defined(USESYSLOG) || defined(USELOGFILE)
 static char wwn_str1[17];
 static char wwn_str2[17];
 static char wwn_str3[17];
@@ -471,8 +476,8 @@ WWN2str(char *buf, HBA_WWN *wwn) {
     }
     return(buf);
 }
+#endif
 
-
 #ifdef WIN32
 BOOL APIENTRY
 DllMain( HANDLE hModule,
@@ -665,6 +670,7 @@ HBA_LoadLibrary() {
     char		hbaConfFilePath[256];
     char		*charPtr;
     HBA_LIBRARY_INFO	*lib_infop;
+    int			duplicate = 0;
 
     if(_hbaapi_librarylist != NULL) {
 	fprintf(stderr,
@@ -715,6 +721,30 @@ HBA_LoadLibrary() {
 	    (strlen(librarypath) == 0)) {
 	    continue;
 	}
+
+	/* Skip over duplicate library entries */
+	duplicate = 0;
+	for(lib_infop = _hbaapi_librarylist;
+	    lib_infop != NULL;
+	    lib_infop = lib_infop->next) {
+		if (strcmp(lib_infop->LibraryName, libraryname) == 0) {
+			fprintf(stderr, "Skipping duplicate entry for Library "
+				"name (%s) in %s\n",
+				libraryname, hbaConfFilePath);
+			duplicate = 1;
+			break;
+		} else if (strcmp(lib_infop->LibraryPath, librarypath) == 0) {
+			fprintf(stderr, "Skipping duplicate entry for Library "
+				"path (%s) in %s\n",
+				librarypath, hbaConfFilePath);
+			duplicate = 1;
+			break;
+		}
+	}
+	/* Duplicate found move to next */
+	if (duplicate)
+		continue;
+
 	/*
 	 * Special case....
 	 * Look for loglevel
@@ -820,6 +850,9 @@ HBA_LoadLibrary() {
 	/* successfully loaded library */
 	lib_infop->status = HBA_LIBRARY_LOADED;
     }
+
+    fclose(hbaconf);
+
 #endif /* WIN32 or UNIX */
 #ifdef POSIX_THREADS
     ret = pthread_mutex_init(&_hbaapi_LL_mutex, NULL);
@@ -859,8 +892,15 @@ HBA_LoadLibrary() {
     InitializeCriticalSection(&_hbaapi_LE_mutex);
 #endif
 
-
-    return HBA_STATUS_OK;
+    /* At least one lib must be loaded */
+    status = HBA_STATUS_ERROR;
+    for(lib_infop = _hbaapi_librarylist; lib_infop != NULL; lib_infop = lib_infop->next) {
+        if (lib_infop->status == HBA_LIBRARY_LOADED) {
+            status = HBA_STATUS_OK;
+            break;
+        }
+    }
+    return status;
 }
 
 HBA_STATUS
@@ -1048,7 +1088,7 @@ HBA_GetNumberOfAdapters() {
 	    if(adapt_infop == NULL) {
 #ifndef WIN32
 		fprintf(stderr,
-			"HBA_GetNumberOfAdapters: calloc failed on sizeof:%d\n",
+			"HBA_GetNumberOfAdapters: calloc failed on sizeof:%ld\n",
 			sizeof(HBA_ADAPTER_INFO));
 #endif
 		RELEASE_MUTEX(&_hbaapi_AL_mutex);
@@ -1359,7 +1399,7 @@ HBA_RegisterForAdapterAddEvents (
     if(cbp == NULL) {
 #ifndef WIN32
 	fprintf(stderr,
-		"HBA_RegisterForAdapterAddEvents: calloc failed for %d bytes\n",
+		"HBA_RegisterForAdapterAddEvents: calloc failed for %ld bytes\n",
 		sizeof(HBA_ALLADAPTERSCALLBACK_ELEM));
 #endif
 	return HBA_STATUS_ERROR;
@@ -1399,7 +1439,7 @@ HBA_RegisterForAdapterAddEvents (
 #ifndef WIN32
 	    fprintf(stderr,
 		    "HBA_RegisterForAdapterAddEvents: "
-		    "calloc failed for %d bytes\n",
+		    "calloc failed for %ld bytes\n",
 		    sizeof(HBA_VENDORCALLBACK_ELEM));
 #endif
 	    freevendorhandlelist(vendorhandlelist);
@@ -1535,7 +1575,7 @@ HBA_RegisterForAdapterEvents (
     if(acbp == NULL) {
 #ifndef WIN32
 	fprintf(stderr,
-		"HBA_RegisterForAdapterEvents: calloc failed for %d bytes\n",
+		"HBA_RegisterForAdapterEvents: calloc failed for %ld bytes\n",
 		sizeof(HBA_ADAPTERCALLBACK_ELEM));
 #endif
 	RELEASE_MUTEX_RETURN(&_hbaapi_LL_mutex, HBA_STATUS_ERROR);
@@ -1627,7 +1667,7 @@ HBA_RegisterForAdapterPortEvents (
 #ifndef WIN32
 	fprintf(stderr,
 		"HBA_RegisterForAdapterPortEvents: "
-		"calloc failed for %d bytes\n",
+		"calloc failed for %ld bytes\n",
 		sizeof(HBA_ADAPTERCALLBACK_ELEM));
 #endif
 	RELEASE_MUTEX_RETURN(&_hbaapi_LL_mutex, HBA_STATUS_ERROR);
@@ -1720,7 +1760,7 @@ HBA_RegisterForAdapterPortStatEvents (
 #ifndef WIN32
 	fprintf(stderr,
 		"HBA_RegisterForAdapterPortStatEvents: "
-		"calloc failed for %d bytes\n",
+		"calloc failed for %ld bytes\n",
 		sizeof(HBA_ADAPTERCALLBACK_ELEM));
 #endif
 	RELEASE_MUTEX_RETURN(&_hbaapi_LL_mutex, HBA_STATUS_ERROR);
@@ -1817,7 +1857,7 @@ HBA_RegisterForTargetEvents (
     if(acbp == NULL) {
 #ifndef WIN32
 	fprintf(stderr,
-		"HBA_RegisterForTargetEvents: calloc failed for %d bytes\n",
+		"HBA_RegisterForTargetEvents: calloc failed for %ld bytes\n",
 		sizeof(HBA_ADAPTERCALLBACK_ELEM));
 #endif
 	RELEASE_MUTEX_RETURN(&_hbaapi_LL_mutex, HBA_STATUS_ERROR);
@@ -1912,7 +1952,7 @@ HBA_RegisterForLinkEvents (
     if(acbp == NULL) {
 #ifndef WIN32
 	fprintf(stderr,
-		"HBA_RegisterForLinkEvents: calloc failed for %d bytes\n",
+		"HBA_RegisterForLinkEvents: calloc failed for %ld bytes\n",
 		sizeof(HBA_ADAPTERCALLBACK_ELEM));
 #endif
 	RELEASE_MUTEX_RETURN(&_hbaapi_LL_mutex, HBA_STATUS_ERROR);
