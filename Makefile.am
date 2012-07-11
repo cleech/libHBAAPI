@@ -9,13 +9,9 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = HBAAPI.pc
 
 dist_sysconf_DATA = hba.conf
-dist_noinst_DATA = HBAAPILIB.c HBAAPI.pc.in libHBAAPI.spec
-
-hbaapilib.c: ${srcdir}/HBAAPILIB.c
-	cp ${srcdir}/HBAAPILIB.c $@
+dist_noinst_DATA = HBAAPI.pc.in libHBAAPI.spec
 
 clean-local:
-	-rm -f hbaapilib.c
 	-if [ ${abs_srcdir} != ${abs_builddir} ]; then \
 		rm -f hba.conf; \
 	fi
