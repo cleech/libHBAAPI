@@ -1,4 +1,6 @@
 AC_INIT([libHBAAPI], [2.2.8], [fcoe-devel@open-fcoe.org])
+
+AM_PROG_AR
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 AC_PROG_CC
