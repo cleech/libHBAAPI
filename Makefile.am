@@ -2,6 +2,7 @@ lib_LTLIBRARIES = libHBAAPI.la
 libHBAAPI_la_SOURCES = hbaapi.h vendorhbaapi.h
 nodist_libHBAAPI_la_SOURCES = hbaapilib.c
 libHBAAPI_la_LDFLAGS = -version-info 2:2:0
+libHBAAPI_la_LIBADD = -ldl
 
 nobase_include_HEADERS = hbaapi.h vendorhbaapi.h
 
