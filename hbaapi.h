@@ -229,11 +229,17 @@ typedef HBA_UINT32 HBA_PORTSTATE;
 
 
 typedef HBA_UINT32 HBA_PORTSPEED;
-#define HBA_PORTSPEED_UNKNOWN		0   /* Unknown - transceiver incable
-					     * of reporting */
-#define HBA_PORTSPEED_1GBIT		1   /* 1 GBit/sec */
-#define HBA_PORTSPEED_2GBIT		2   /* 2 GBit/sec */
-#define HBA_PORTSPEED_10GBIT		4   /* 10 GBit/sec */
+#define HBA_PORTSPEED_UNKNOWN		0x0000  /* Unknown - transceiver incable
+					         * of reporting */
+#define HBA_PORTSPEED_1GBIT		0x0001  /* 1 GBit/sec */
+#define HBA_PORTSPEED_2GBIT		0x0002  /* 2 GBit/sec */
+#define HBA_PORTSPEED_10GBIT		0x0004  /* 10 GBit/sec */
+#define HBA_PORTSPEED_4GBIT		0x0008  /* 4 GBit/sec */
+#define HBA_PORTSPEED_8GBIT		0x0010  /* 8 GBit/sec */
+#define HBA_PORTSPEED_16GBIT		0x0020  /* 16 GBit/sec */
+#define HBA_PORTSPEED_32GBIT		0x0040  /* 32 GBit/sec */
+#define HBA_PORTSPEED_20GBIT		0x0080  /* 20 GBit/sec */
+#define HBA_PORTSPEED_40GBIT		0x0100  /* 40 GBit/sec */
 #define HBA_PORTSPEED_NOT_NEGOTIATED	(1 << 15) /* Speed not established */
 
 
